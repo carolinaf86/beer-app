@@ -1,10 +1,11 @@
 import React from 'react';
 import './App.scss';
-import {Typography} from '@material-ui/core';
+import NavBar from './components/NavBar';
 
 const App: React.FC = () => {
   return (
     <div className="beer-app">
+        <NavBar/>
     </div>
   );
 }

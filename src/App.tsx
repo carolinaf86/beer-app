@@ -1,5 +1,6 @@
 import React from 'react';
-import './App.css';
+import './App.scss';
+import {Typography} from '@material-ui/core';
 
 const App: React.FC = () => {
   return (

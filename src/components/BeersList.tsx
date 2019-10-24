@@ -4,6 +4,7 @@ import {Beer} from '../api/Beer';
 import BeersListItem from './BeersListItem';
 import debounce from 'lodash.debounce';
 import BeersListItemPlaceholder from './BeersListItemPlaceholder';
+import {apiBaseUrl} from '../App';
 
 type BeersListState = {
     error: boolean
@@ -16,10 +17,13 @@ type BeersListState = {
 
 class BeersList extends React.Component<{}, BeersListState> {
 
-    baseUrl = 'https://api.punkapi.com/v2';
+    // Track mounted state to avoid attempting to set state after component is unmounted
+    private _isMounted: boolean;
 
     constructor(props: any) {
         super(props);
+
+        this._isMounted = false;
 
         this.state = {
             error: false,
@@ -50,7 +54,7 @@ class BeersList extends React.Component<{}, BeersListState> {
         // If scroll is in bottom 100px of page, load more beers
         if (window.innerHeight + document.documentElement.scrollTop > document.documentElement.offsetHeight - 100) {
             // Increment page number
-            this.setState(
+            this._isMounted && this.setState(
                 (state: BeersListState) => ({...state, page: state.page + 1}),
                 () => loadBeers.bind(this)()
             );
@@ -58,21 +62,21 @@ class BeersList extends React.Component<{}, BeersListState> {
     }
 
     componentDidMount(): void {
+        this._isMounted = true;
         this.loadBeers();
     }
 
     loadBeers() {
 
-        this.setState({...this.state, isLoading: true}, async () => {
+        this._isMounted && this.setState({...this.state, isLoading: true}, async () => {
 
             const {page, pageSize, beers} = this.state;
 
             try {
-                const response: Response = await fetch(`${this.baseUrl}/beers/?page=${page}&per_page=${pageSize}`);
+                const response: Response = await fetch(`${apiBaseUrl}/beers/?page=${page}&per_page=${pageSize}`);
 
                 if (!(response && response.ok)) {
-                    this.setState((state: BeersListState) => ({...state, error: true}));
-                    return;
+                    this.setErrorState();
                 }
 
                 const json = await response.json();
@@ -83,7 +87,7 @@ class BeersList extends React.Component<{}, BeersListState> {
                 // If the number of items requested was returned, we assume there are more
                 const hasMore = nextBeers.length === pageSize;
 
-                this.setState((state: BeersListState) => ({
+                this._isMounted && this.setState((state: BeersListState) => ({
                     ...state,
                     isLoading: false,
                     hasMore,
@@ -91,9 +95,17 @@ class BeersList extends React.Component<{}, BeersListState> {
                 }));
 
             } catch (err) {
-                this.setState((state: BeersListState) => ({...state, error: true}));
+                this.setErrorState()
             }
         });
+    }
+
+    setErrorState() {
+        this._isMounted && this.setState((state: BeersListState) => ({...state, error: true}));
+    }
+
+    componentWillUnmount(): void {
+        this._isMounted = false;
     }
 
     render() {

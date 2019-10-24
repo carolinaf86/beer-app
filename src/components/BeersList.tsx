@@ -1,8 +1,19 @@
 import React from 'react';
-import {Card, Typography} from '@material-ui/core';
+import {Grid, GridList, Typography} from '@material-ui/core';
 import {Beer} from '../api/Beer';
+import BeersListItem from './BeersListItem';
 
-class BeersList extends React.Component {
+
+type BeersListState = {
+    error: boolean
+    hasMore: boolean
+    isLoading: boolean
+    page: number
+    pageSize: number
+    beers: Beer[]
+}
+
+class BeersList extends React.Component<{}, BeersListState> {
 
     baseUrl = 'https://api.punkapi.com/v2';
 
@@ -23,19 +34,17 @@ class BeersList extends React.Component {
         this.loadBeers();
     }
 
-    loadBeers() {
+    async loadBeers() {
 
-        this.setState({loading: true});
+        this.setState({...this.state, isLoading: true}, async () => {
 
-        this.setState(async (state, props) => {
-
-            const {page, pageSize, beers} = state as any;
+            const {page, pageSize, beers} = this.state;
 
             try {
                 const response: Response = await fetch(`${this.baseUrl}/beers/?page=${page}&per_page=${pageSize}`);
 
                 if (!(response && response.ok)) {
-                    this.setState({...state, error: true});
+                    this.setState((state: BeersListState) => ({...state, error: true}));
                     return;
                 }
 
@@ -43,17 +52,15 @@ class BeersList extends React.Component {
 
                 const nextBeers: Beer[] = json.map((item: any) => new Beer(item));
 
-                this.setState({
+                this.setState((state: BeersListState) => ({
                     ...state,
                     isLoading: false,
-                    // TODO "hasMore" logic
                     beers: [...beers, ...nextBeers]
-                })
+                }));
 
             } catch (err) {
-                this.setState({...state, error: true});
+                this.setState((state: BeersListState) => ({...state, error: true}));
             }
-
         });
     }
 
@@ -62,9 +69,13 @@ class BeersList extends React.Component {
         return (
             <div>
                 <Typography variant={"h3"}>Beers</Typography>
-                { beers.map((beer: Beer) =>
-                    <Card key={beer.id}><Typography variant={'h5'}>{beer.name}</Typography> </Card>
-                )}
+                <Grid container spacing={2}>
+                    {beers.map((beer: Beer) =>
+                        <Grid item xs={12} sm={6} md={4}>
+                            <BeersListItem key={beer.id} model={beer}/>
+                        </Grid>
+                    )}
+                </Grid>
             </div>
         );
     }

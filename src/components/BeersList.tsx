@@ -1,8 +1,8 @@
 import React from 'react';
-import {Grid, GridList, Typography} from '@material-ui/core';
+import {Grid, Typography} from '@material-ui/core';
 import {Beer} from '../api/Beer';
 import BeersListItem from './BeersListItem';
-
+import debounce from 'lodash.debounce';
 
 type BeersListState = {
     error: boolean
@@ -27,6 +27,29 @@ class BeersList extends React.Component<{}, BeersListState> {
             page: 1,
             pageSize: 20,
             beers: []
+        };
+
+        // Bind to on scroll event for infinite scroll
+        window.onscroll = debounce((this.onScroll.bind(this)), 100);
+    }
+
+    onScroll() {
+        const {
+            loadBeers,
+            state: {
+                error,
+                isLoading,
+                hasMore,
+            },
+        } = this;
+
+        // Return early if there is an error, loading is in progress or there are no more items
+        if (error || isLoading || !hasMore) return;
+
+        // If scroll is in bottom 100px of page, load more beers
+        if (window.innerHeight + document.documentElement.scrollTop > document.documentElement.offsetHeight - 100) {
+            // Increment page number
+            this.setState((state: BeersListState) => ({...state, page: state.page + 1}), () => loadBeers.bind(this)());
         }
     }
 
@@ -34,7 +57,7 @@ class BeersList extends React.Component<{}, BeersListState> {
         this.loadBeers();
     }
 
-    async loadBeers() {
+    loadBeers() {
 
         this.setState({...this.state, isLoading: true}, async () => {
 
@@ -50,12 +73,17 @@ class BeersList extends React.Component<{}, BeersListState> {
 
                 const json = await response.json();
 
+                // Create Beer objects from response json
                 const nextBeers: Beer[] = json.map((item: any) => new Beer(item));
+
+                // If the number of items requested was returned, we assume there are more
+                const hasMore = nextBeers.length === pageSize;
 
                 this.setState((state: BeersListState) => ({
                     ...state,
                     isLoading: false,
-                    beers: [...beers, ...nextBeers]
+                    hasMore,
+                    beers: [...beers, ...nextBeers] // Merge new items into the existing beers array
                 }));
 
             } catch (err) {
@@ -71,8 +99,8 @@ class BeersList extends React.Component<{}, BeersListState> {
                 <Typography variant={"h3"}>Beers</Typography>
                 <Grid container spacing={2}>
                     {beers.map((beer: Beer) =>
-                        <Grid item xs={12} sm={6} md={4}>
-                            <BeersListItem key={beer.id} model={beer}/>
+                        <Grid key={beer.id} item xs={12} sm={6} md={4}>
+                            <BeersListItem model={beer}/>
                         </Grid>
                     )}
                 </Grid>

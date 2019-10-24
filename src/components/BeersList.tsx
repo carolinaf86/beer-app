@@ -3,6 +3,7 @@ import {Grid, Typography} from '@material-ui/core';
 import {Beer} from '../api/Beer';
 import BeersListItem from './BeersListItem';
 import debounce from 'lodash.debounce';
+import BeersListItemPlaceholder from './BeersListItemPlaceholder';
 
 type BeersListState = {
     error: boolean
@@ -49,7 +50,10 @@ class BeersList extends React.Component<{}, BeersListState> {
         // If scroll is in bottom 100px of page, load more beers
         if (window.innerHeight + document.documentElement.scrollTop > document.documentElement.offsetHeight - 100) {
             // Increment page number
-            this.setState((state: BeersListState) => ({...state, page: state.page + 1}), () => loadBeers.bind(this)());
+            this.setState(
+                (state: BeersListState) => ({...state, page: state.page + 1}),
+                () => loadBeers.bind(this)()
+            );
         }
     }
 
@@ -93,7 +97,15 @@ class BeersList extends React.Component<{}, BeersListState> {
     }
 
     render() {
-        const {beers} = this.state as any;
+        const {beers, isLoading} = this.state;
+
+        const gridItems = isLoading ?
+            [0, 1, 2, 3, 4, 5].map(idx =>
+                <Grid key={'placeholder-' + idx} item xs={12} sm={6} md={4}>
+                    <BeersListItemPlaceholder/>
+                </Grid>) :
+            undefined;
+
         return (
             <div>
                 <Typography variant={"h3"}>Beers</Typography>
@@ -103,6 +115,7 @@ class BeersList extends React.Component<{}, BeersListState> {
                             <BeersListItem model={beer}/>
                         </Grid>
                     )}
+                    {gridItems}
                 </Grid>
             </div>
         );

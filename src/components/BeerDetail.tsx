@@ -93,15 +93,16 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
             <Box m={2}>
                 <Card>
                     <CardContent>
-                        <Box display="flex" flexDirection="row" justifyContent="left" p={4}>
-                            <Box alignSelf="center">
+                        <Box display="flex" flexDirection={{xs: 'column', md: 'row'}} p={4}>
+                            <Box alignSelf="center" marginBottom={{xs: 6, md: 0}}>
                                 <CardMedia image={imageUrl} title={name} className="beer-detail-media"/>
                             </Box>
                             <Box marginLeft={{md: 8, lg: 12}}>
-                                <Box marginBottom={2}><Typography variant={'h3'}>{name}</Typography></Box>
-                                <Box marginBottom={4}><Typography variant={'h6'}>{tagline}</Typography></Box>
-                                <Box marginBottom={2}><Typography variant={'subtitle1'}>{description}</Typography></Box>
-                                <Box marginBottom={2}>
+                                <Box marginBottom={2} textAlign={{xs: 'center', md: 'left'}}><Typography variant={'h3'}>{name}</Typography></Box>
+                                <Box marginBottom={6} textAlign={{xs: 'center', md: 'left'}}><Typography variant={'h6'}>{tagline}</Typography></Box>
+                                <Box marginBottom={4}><Typography
+                                    variant={'subtitle1'}>{description}</Typography></Box>
+                                <Box marginBottom={4}>
                                     <List className="beer-details-list" aria-label={`${name} details list`}>
                                         <ListItem>
                                             <ListItemText>First brewed: <strong>{firstBrewed}</strong></ListItemText>
@@ -118,7 +119,9 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
                                     </List>
                                 </Box>
                                 <Box marginBottom={2}>
-                                    <Typography variant={'subtitle1'}>Suggested food pairings:</Typography>
+                                    <Box marginBottom={2}>
+                                        <Typography variant={'subtitle1'}>Suggested food pairings:</Typography>
+                                    </Box>
                                     <List className="beer-details-list" aria-label={`${name} food pairings list`}>
                                         {foodPairing.map((item, idx) =>
                                             <ListItem key={idx}>

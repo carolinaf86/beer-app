@@ -1,0 +1,62 @@
+$none: 0;
+$xs: 6px;
+$sm: 12px;
+$md: 24px;
+$lg: 36px;
+$xl: 48px;
+
+$sizes: (
+  0: $none,
+  xs: $xs,
+  sm: $sm,
+  md: $md,
+  lg: $lg,
+  xl: $xl
+);
+
+@mixin padding($top: null, $right: null, $bottom: null, $left: null) {
+  padding-top: $top !important;
+  padding-right: $right !important;
+  padding-bottom: $bottom !important;
+  padding-left: $left !important;
+}
+
+@mixin margin($top: null, $right: null, $bottom: null, $left: null) {
+  margin-top: $top !important;
+  margin-right: $right !important;
+  margin-bottom: $bottom !important;
+  margin-left: $left !important;
+}
+
+@each $name, $value in $sizes {
+  .p-t-#{$name} {
+    @include padding($top: $value);
+  }
+  .p-b-#{$name} {
+    @include padding($bottom: $value);
+  }
+  .p-r-#{$name} {
+    @include padding($right: $value);
+  }
+  .p-l-#{$name} {
+    @include padding($left: $value);
+  }
+  .p-#{$name} {
+    @include padding($top: $value, $right: $value, $bottom: $value, $left: $value);
+  }
+  .m-t-#{$name} {
+    @include margin($top: $value);
+  }
+  .m-b-#{$name} {
+    @include margin($bottom: $value);
+  }
+  .m-r-#{$name} {
+    @include margin($right: $value);
+  }
+  .m-l-#{$name} {
+    @include margin($left: $value);
+  }
+  .m-#{$name} {
+    @include margin($top: $value, $right: $value, $bottom: $value, $left: $value);
+  }
+}

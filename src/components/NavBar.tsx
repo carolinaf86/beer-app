@@ -1,27 +1,29 @@
 import React from 'react'
-import {AppBar, Box, IconButton, Toolbar, Typography} from '@material-ui/core';
+import {AppBar, Box, Toolbar, Typography} from '@material-ui/core';
 import {Favorite, HomeRounded} from '@material-ui/icons';
+import {NavLink} from 'react-router-dom';
+import './NavBar.scss';
 
 const NavBar = () => {
     return (
         <div>
             <AppBar position="static">
                 <Toolbar>
-                    <IconButton edge="start" color="inherit" aria-label="home">
+                    <NavLink to={"/"} aria-label="home" className="app-bar-link m-r-sm">
                         <HomeRounded/>
-                    </IconButton>
+                    </NavLink>
                     <Box flexGrow={1}>
                         <Typography variant={"h6"} color="inherit">
                             Beer App
                         </Typography>
                     </Box>
-
-                    <IconButton edge="end" color="inherit" aria-label="favourites">
+                    <NavLink to={"/favourites"} aria-label="favourites" className="app-bar-link">
                         <Favorite/>
-                    </IconButton>
+                    </NavLink>
                 </Toolbar>
             </AppBar>
         </div>
     )
-}
+};
+
 export default NavBar;

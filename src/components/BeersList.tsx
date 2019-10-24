@@ -1,5 +1,5 @@
 import React from 'react';
-import {Grid, Typography} from '@material-ui/core';
+import {Box, Grid, Typography} from '@material-ui/core';
 import {Beer} from '../api/Beer';
 import BeersListItem from './BeersListItem';
 import debounce from 'lodash.debounce';
@@ -108,7 +108,9 @@ class BeersList extends React.Component<{}, BeersListState> {
 
         return (
             <div>
-                <Typography variant={"h3"}>Beers</Typography>
+                <Box marginBottom={2} marginLeft={2}>
+                    <Typography variant={"h3"}>All Beers</Typography>
+                </Box>
                 <Grid container spacing={2}>
                     {beers.map((beer: Beer) =>
                         <Grid key={beer.id} item xs={12} sm={6} md={4}>

@@ -126,7 +126,7 @@ class BeersList extends React.Component<{}, BeersListState> {
                 <Grid container spacing={2}>
                     {beers.map((beer: Beer) =>
                         <Grid key={beer.id} item xs={12} sm={6} md={4}>
-                            <BeersListItem model={beer}/>
+                            <BeersListItem model={beer} isFavourite={false}/>
                         </Grid>
                     )}
                     {gridItems}

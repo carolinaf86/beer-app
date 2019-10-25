@@ -13,6 +13,7 @@ type BeersListItemState = {
 
 type BeersListItemProps = {
     model: Beer
+    onFavouriteToggled?: () => any
 }
 
 class BeersListItem extends React.Component<BeersListItemProps, BeersListItemState> {
@@ -24,9 +25,13 @@ class BeersListItem extends React.Component<BeersListItemProps, BeersListItemSta
 
     handleClick() {
         const {isFavourite} = this.state;
-        const {model:{id}} = this.props;
+        const {model:{id}, onFavouriteToggled} = this.props;
         isFavourite ? InMemoryStore.removeFavourite(id) : InMemoryStore.addFavourite(id);
         this.setState((state: BeersListItemState) => ({...state, isFavourite: !isFavourite}));
+
+        if (onFavouriteToggled) {
+            onFavouriteToggled();
+        }
     }
 
     render() {

@@ -74,9 +74,9 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
     }
 
     componentDidUpdate(prevProps: Readonly<BeersListProps>, prevState: Readonly<BeersListState>, snapshot?: any): void {
-        // Re-load beers when props change
+        // Reset state and reload beers when "showFavourites" prop changes
         if (prevProps.showFavourites !== this.props.showFavourites) {
-            this.setState((state: BeersListState) => ({...state, beers: []}), () => this.loadBeers());
+            this.setState((state: BeersListState) => ({...state, beers: [], page: 1}), () => this.loadBeers());
         }
     }
 
@@ -124,6 +124,19 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
         this._isMounted = false;
     }
 
+    removeBeer(id: number) {
+        // Ensure "unfavourited" beers are removed from beers array on favourites view
+
+        if (!this.props.showFavourites) return;
+
+        this.setState((state: BeersListState) => {
+           const idx = state.beers.findIndex(beer => beer.id === id);
+           const beers = [...state.beers];
+           beers.splice(idx, 1);
+           return {...state, beers};
+        });
+    }
+
     render() {
         const {beers, isLoading, error} = this.state;
         const {showFavourites} = this.props;
@@ -145,13 +158,11 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
                     <Typography variant={"h3"}>{showFavourites ? 'My Favourite Beers' : 'All Beers'}</Typography>
                 </Box>
                 {showFavourites && !InMemoryStore.getFavourites().length ?
-                    <Box marginLeft={2} marginTop={4}>
-                        <Link to={'/'}><Typography variant={'h6'}>Add some favourite beers.</Typography></Link>
-                    </Box> :
+                    <Box marginLeft={2} marginTop={4}><Link to={'/'}>Add some favourite beers</Link></Box> :
                     <Grid container spacing={2}>
                         {beers.map((beer: Beer) =>
                             <Grid key={beer.id} item xs={12} sm={6} md={4}>
-                                <BeersListItem model={beer}/>
+                                <BeersListItem model={beer} onFavouriteToggled={showFavourites ? () => this.removeBeer(beer.id) : undefined}/>
                             </Grid>
                         )}
                         {loadingItems}

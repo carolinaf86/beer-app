@@ -4,13 +4,13 @@ export class Beer {
     name!: string;
     tagline!: string;
     imageUrl!: string;
-    firstBrewed?: string;
-    description?: string;
-    abv?: number;
-    ibu?: number;
-    volume?: BeerVolume;
-    foodPairing?: string[];
-    brewersTips?: string;
+    firstBrewed!: string;
+    description!: string;
+    abv!: number;
+    ibu!: number;
+    volume!: BeerVolume;
+    foodPairing!: string[];
+    brewersTips!: string;
 
     constructor(data: any) {
         this.id = data.id;

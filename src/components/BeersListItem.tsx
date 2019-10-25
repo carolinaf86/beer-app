@@ -2,6 +2,7 @@ import React from 'react';
 import {Box, Card, CardActionArea, CardContent, CardMedia, Typography} from '@material-ui/core';
 import {Beer} from '../api/Beer';
 import './BeersListItem.scss';
+import CustomLink from './CustomLink';
 
 type BeersListItemProps = {
     model: Beer
@@ -15,6 +16,7 @@ class BeersListItem extends React.Component<BeersListItemProps, {}> {
         return (
             <Box m={2}>
                 <Card>
+                    <CustomLink to={`/beers/${model.id}`} aria-label="Favourites">
                     <CardActionArea>
                         <CardContent>
                             <Box display="flex"
@@ -29,6 +31,7 @@ class BeersListItem extends React.Component<BeersListItemProps, {}> {
                             </Box>
                         </CardContent>
                     </CardActionArea>
+                    </CustomLink>
                 </Card>
             </Box>
         )

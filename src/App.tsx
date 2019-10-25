@@ -5,6 +5,7 @@ import {Box, Container, createMuiTheme, Typography} from '@material-ui/core';
 import {blue, red} from '@material-ui/core/colors';
 import {ThemeProvider} from '@material-ui/core/styles';
 import BeersList from './components/BeersList';
+import BeerDetail from './components/BeerDetail';
 
 const theme = createMuiTheme({
     palette: {
@@ -14,6 +15,8 @@ const theme = createMuiTheme({
     spacing: 6
 });
 
+export const apiBaseUrl = 'https://api.punkapi.com/v2';
+
 const App: React.FC = () => {
     return (
         <Router>
@@ -22,10 +25,11 @@ const App: React.FC = () => {
                 <Box marginTop={5}>
                     <Container>
                         <Switch>
-                            <Route path={"/"} exact>
+                            <Route path={'/'} exact>
                                 <BeersList/>
                             </Route>
-                            <Route path={"/favourites"}>
+                            <Route path={'/beers/:id'} component={BeerDetail} />
+/                            <Route path={'/favourites'}>
                                 <Typography variant={'h2'}>
                                     My favourite beers
                                 </Typography>

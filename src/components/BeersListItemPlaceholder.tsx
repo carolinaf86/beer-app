@@ -1,7 +1,7 @@
 import React from 'react';
 import {Box, Card, CardContent} from '@material-ui/core';
 import './BeersListItem.scss';
-import './BeersListItemPlaceholder.scss';
+import './Placeholder.scss';
 
 class BeersListItemPlaceholder extends React.Component {
 

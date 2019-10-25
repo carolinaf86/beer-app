@@ -1,13 +1,9 @@
 import {Beer} from '../models/Beer';
 import {apiBaseUrl} from '../../App';
 import ErrorService from './ErrorService';
+import {BaseApiService} from './BaseApiService';
 
-interface APIService<T> {
-    find: () => Promise<T[]>,
-    findById: (id: number) => Promise<T | undefined>
-}
-
-export class BeerService implements APIService<Beer> {
+export class BeerService implements BaseApiService<Beer> {
 
     async find(page: number = 1, pageSize: number = 20, ids?: number[]): Promise<Beer[]> {
 

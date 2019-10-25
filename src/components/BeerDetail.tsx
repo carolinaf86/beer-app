@@ -15,6 +15,7 @@ import {RouteComponentProps} from 'react-router-dom';
 import {apiBaseUrl} from '../App';
 import './BeerDetail.scss';
 import EmojiFoodBeverageIcon from '@material-ui/icons/EmojiFoodBeverage';
+import BeerDetailPlaceholder from './BeerDetailPlaceholder';
 
 interface BeerDetailRouterProps {
     id: string
@@ -73,7 +74,7 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
 
     render() {
 
-        if (!this.state.model) return <Typography variant={'h3'}>Loading</Typography>;
+        if (!this.state.model) return  <BeerDetailPlaceholder/>;
 
         const {
             model: {

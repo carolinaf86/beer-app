@@ -3,7 +3,7 @@ export class HttpError extends Error {
     constructor(message: string, statusCode?: number) {
         super(message);
 
-        // Set the prototype explicitly. // TODO review this
+        // Set the prototype explicitly for performing instanceof checks
         Object.setPrototypeOf(this, HttpError.prototype);
 
         this.statusCode = statusCode;

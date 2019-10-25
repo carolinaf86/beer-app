@@ -10,13 +10,16 @@ import {
     ListItemText,
     Typography
 } from '@material-ui/core';
-import {Beer} from '../api/Beer';
+import {Beer} from '../api/models/Beer';
 import {Link, RouteComponentProps} from 'react-router-dom';
-import {apiBaseUrl} from '../App';
 import './BeerDetail.scss';
 import EmojiFoodBeverageIcon from '@material-ui/icons/EmojiFoodBeverage';
 import BeerDetailPlaceholder from './BeerDetailPlaceholder';
 import ErrorMessage from './ErrorMessage';
+import FavouriteToggle from './FavouriteToggle';
+import InMemoryStore from '../services/InMemoryStore';
+import BeerService from '../api/services/BeerService';
+import {HttpError} from '../api/services/ErrorService';
 
 interface BeerDetailRouterProps {
     id: string
@@ -28,6 +31,7 @@ interface BeerDetailProps extends RouteComponentProps<BeerDetailRouterProps> {
 interface BeerDetailState {
     model?: Beer
     error?: string | any[]
+    isFavourite: boolean
 }
 
 class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
@@ -35,7 +39,8 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
     constructor(props: any) {
         super(props);
         this.state = {
-            model: undefined
+            model: undefined,
+            isFavourite: false
         };
     }
 
@@ -44,44 +49,42 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
 
         try {
 
-            const response: Response = await fetch(`${apiBaseUrl}/beers/${id}`);
+            const beer = await BeerService.findById(+id);
+            const isFavourite = InMemoryStore.getIsFavourite((+id));
 
-            if (!(response && response.ok)) {
-                const message = response.status === 400 ?
-                    ['The beer you requested does not exist. ', <Link to={'/'}>Find another beer.</Link>] :
-                    undefined;
-                this.setError(message);
-                return;
-            }
-
-            const json = await response.json();
-
-            // Set error state if json is not an array with one item
-            if (!Array.isArray(json) && json.length === 1) {
-                this.setError();
-                return;
-            }
-
-            const beer = new Beer(json[0]);
-
-            this.setState((state: BeerDetailState) => ({...state, model: beer}));
+            this.setState((state: BeerDetailState) => ({...state, model: beer, isFavourite}));
 
         } catch (err) {
-            this.setError();
+            this.setErrorState(err);
         }
     }
 
-    setError(message?: string | any[]) {
-        // TODO set error message and display
+    setErrorState(err: Error) {
+
+        let message: string | (string | JSX.Element)[] = 'Oops, something went wrong! Failed to load beer.';
+
+        // Display "not found" message on both 400 and 404 status codes as unknown id in params returns 400 status
+        if (err instanceof HttpError && err.statusCode && [400, 404].indexOf(err.statusCode) > -1) {
+            message = ['The beer you requested does not exist. ', <Link to={'/'}>Find another beer.</Link>];
+        }
+
         this.setState((state: BeerDetailState) => ({
             ...state,
-            error: message || 'Oops, something went wrong! Failed to load beer.'
+            error: message
         }));
+    }
+
+    handleClick() {
+        const {isFavourite, model} = this.state;
+        if (!model) return;
+        const {id} = model;
+        isFavourite ? InMemoryStore.removeFavourite(id) : InMemoryStore.addFavourite(id);
+        this.setState((state: BeerDetailState) => ({...state, isFavourite: !isFavourite}));
     }
 
     render() {
 
-        const {error, model} = this.state;
+        const {error, model, isFavourite} = this.state;
 
         if (error) return <ErrorMessage message={error}/>
 
@@ -109,8 +112,12 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
                                 <CardMedia image={imageUrl} title={name} className="beer-detail-media"/>
                             </Box>
                             <Box marginLeft={{md: 8, lg: 12}}>
-                                <Box marginBottom={2} textAlign={{xs: 'center', md: 'left'}}><Typography
-                                    variant={'h3'}>{name}</Typography></Box>
+                                <Box marginBottom={2} display="flex" flexDirection="row"
+                                     justifyContent={{xs: 'center', md: 'left'}}>
+                                        <Typography variant={'h3'}>{name}</Typography>
+                                        <FavouriteToggle onClick={this.handleClick.bind(this)}
+                                                         isFavourite={isFavourite}/>
+                                </Box>
                                 <Box marginBottom={6} textAlign={{xs: 'center', md: 'left'}}><Typography
                                     variant={'h6'}>{tagline}</Typography></Box>
                                 <Box marginBottom={4}><Typography

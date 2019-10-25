@@ -1,13 +1,16 @@
 import React from 'react';
 import {Box, Grid, Typography} from '@material-ui/core';
-import {Beer} from '../api/Beer';
+import {Beer} from '../api/models/Beer';
 import BeersListItem from './BeersListItem';
 import debounce from 'lodash.debounce';
 import BeersListItemPlaceholder from './BeersListItemPlaceholder';
-import {apiBaseUrl} from '../App';
+import BeerService from '../api/services/BeerService';
+import ErrorMessage from './ErrorMessage';
+import InMemoryStore from '../services/InMemoryStore';
+import {Link} from 'react-router-dom';
 
-type BeersListState = {
-    error: boolean
+interface BeersListState {
+    error?: string
     hasMore: boolean
     isLoading: boolean
     page: number
@@ -15,18 +18,22 @@ type BeersListState = {
     beers: Beer[]
 }
 
-class BeersList extends React.Component<{}, BeersListState> {
+interface BeersListProps {
+    showFavourites?: boolean
+}
+
+class BeersList extends React.Component<BeersListProps, BeersListState> {
 
     // Track mounted state to avoid attempting to set state after component is unmounted
     private _isMounted: boolean;
 
-    constructor(props: any) {
+    constructor(props: BeersListProps) {
         super(props);
 
         this._isMounted = false;
 
         this.state = {
-            error: false,
+            error: undefined,
             hasMore: true,
             isLoading: false,
             page: 1,
@@ -66,23 +73,31 @@ class BeersList extends React.Component<{}, BeersListState> {
         this.loadBeers();
     }
 
+    componentDidUpdate(prevProps: Readonly<BeersListProps>, prevState: Readonly<BeersListState>, snapshot?: any): void {
+        // Reset state and reload beers when "showFavourites" prop changes
+        if (prevProps.showFavourites !== this.props.showFavourites) {
+            this.setState((state: BeersListState) => ({...state, beers: [], page: 1}), () => this.loadBeers());
+        }
+    }
+
     loadBeers() {
 
         this._isMounted && this.setState({...this.state, isLoading: true}, async () => {
 
             const {page, pageSize, beers} = this.state;
+            const {showFavourites} = this.props;
+
+            // If "showFavourites" is set, only load beers in favourites state array
+            const favouriteIds = showFavourites ? InMemoryStore.getFavourites() : undefined;
+
+            if (showFavourites && !(favouriteIds && favouriteIds.length)) {
+                this.setState((state: BeersListState) => ({...state, isLoading: false, beers: []}));
+                return;
+            }
 
             try {
-                const response: Response = await fetch(`${apiBaseUrl}/beers/?page=${page}&per_page=${pageSize}`);
 
-                if (!(response && response.ok)) {
-                    this.setErrorState();
-                }
-
-                const json = await response.json();
-
-                // Create Beer objects from response json
-                const nextBeers: Beer[] = json.map((item: any) => new Beer(item));
+                const nextBeers = await BeerService.find(page, pageSize, favouriteIds);
 
                 // If the number of items requested was returned, we assume there are more
                 const hasMore = nextBeers.length === pageSize;
@@ -95,23 +110,42 @@ class BeersList extends React.Component<{}, BeersListState> {
                 }));
 
             } catch (err) {
-                this.setErrorState()
+                this.setErrorState(err)
             }
         });
     }
 
-    setErrorState() {
-        this._isMounted && this.setState((state: BeersListState) => ({...state, error: true}));
+    setErrorState(err: Error) {
+        const message = 'Oops, something went wrong! Failed to load beers.';
+        this._isMounted && this.setState((state: BeersListState) => ({...state, error: message}));
     }
 
     componentWillUnmount(): void {
         this._isMounted = false;
     }
 
-    render() {
-        const {beers, isLoading} = this.state;
+    removeBeer(id: number) {
+        // Ensure "unfavourited" beers are removed from beers array on favourites view
 
-        const gridItems = isLoading ?
+        if (!this.props.showFavourites) return;
+
+        this.setState((state: BeersListState) => {
+           const idx = state.beers.findIndex(beer => beer.id === id);
+           const beers = [...state.beers];
+           beers.splice(idx, 1);
+           return {...state, beers};
+        });
+    }
+
+    render() {
+        const {beers, isLoading, error} = this.state;
+        const {showFavourites} = this.props;
+
+        if (error) {
+            return <ErrorMessage message={error}/>
+        }
+
+        const loadingItems = isLoading ?
             [0, 1, 2, 3, 4, 5].map(idx =>
                 <Grid key={'placeholder-' + idx} item xs={12} sm={6} md={4}>
                     <BeersListItemPlaceholder/>
@@ -121,16 +155,19 @@ class BeersList extends React.Component<{}, BeersListState> {
         return (
             <div>
                 <Box marginBottom={2} marginLeft={2}>
-                    <Typography variant={"h3"}>All Beers</Typography>
+                    <Typography variant={"h3"}>{showFavourites ? 'My Favourite Beers' : 'All Beers'}</Typography>
                 </Box>
-                <Grid container spacing={2}>
-                    {beers.map((beer: Beer) =>
-                        <Grid key={beer.id} item xs={12} sm={6} md={4}>
-                            <BeersListItem model={beer}/>
-                        </Grid>
-                    )}
-                    {gridItems}
-                </Grid>
+                {showFavourites && !InMemoryStore.getFavourites().length ?
+                    <Box marginLeft={2} marginTop={4}><Link to={'/'}>Add some favourite beers</Link></Box> :
+                    <Grid container spacing={2}>
+                        {beers.map((beer: Beer) =>
+                            <Grid key={beer.id} item xs={12} sm={6} md={4}>
+                                <BeersListItem model={beer} onFavouriteToggled={showFavourites ? () => this.removeBeer(beer.id) : undefined}/>
+                            </Grid>
+                        )}
+                        {loadingItems}
+                    </Grid>
+                }
             </div>
         );
     }

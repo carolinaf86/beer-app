@@ -54,7 +54,7 @@ class BeersListItem extends React.Component<BeersListItemProps, BeersListItemSta
                                                        className="beers-list-item-media"/>
                                             <Box textAlign={{xs: 'center', md: 'left'}} marginTop={{xs: 3, md: 0}}>
                                                 <Typography variant={'h5'}>{model.name}</Typography>
-                                                <Typography variant={'subtitle2'}>{model.tagline}</Typography>
+                                                <Typography variant={'subtitle1'}>{model.tagline}</Typography>
                                             </Box>
                                         </Box>
                                     </CardContent>

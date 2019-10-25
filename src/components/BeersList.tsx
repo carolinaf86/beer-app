@@ -1,13 +1,14 @@
 import React from 'react';
 import {Box, Grid, Typography} from '@material-ui/core';
-import {Beer} from '../api/Beer';
+import {Beer} from '../api/models/Beer';
 import BeersListItem from './BeersListItem';
 import debounce from 'lodash.debounce';
 import BeersListItemPlaceholder from './BeersListItemPlaceholder';
-import {apiBaseUrl} from '../App';
+import BeerService from '../api/services/BeerService';
+import ErrorMessage from './ErrorMessage';
 
 type BeersListState = {
-    error: boolean
+    error?: string
     hasMore: boolean
     isLoading: boolean
     page: number
@@ -26,7 +27,7 @@ class BeersList extends React.Component<{}, BeersListState> {
         this._isMounted = false;
 
         this.state = {
-            error: false,
+            error: undefined,
             hasMore: true,
             isLoading: false,
             page: 1,
@@ -73,16 +74,8 @@ class BeersList extends React.Component<{}, BeersListState> {
             const {page, pageSize, beers} = this.state;
 
             try {
-                const response: Response = await fetch(`${apiBaseUrl}/beers/?page=${page}&per_page=${pageSize}`);
 
-                if (!(response && response.ok)) {
-                    this.setErrorState();
-                }
-
-                const json = await response.json();
-
-                // Create Beer objects from response json
-                const nextBeers: Beer[] = json.map((item: any) => new Beer(item));
+                const nextBeers = await BeerService.find(page, pageSize);
 
                 // If the number of items requested was returned, we assume there are more
                 const hasMore = nextBeers.length === pageSize;
@@ -95,13 +88,14 @@ class BeersList extends React.Component<{}, BeersListState> {
                 }));
 
             } catch (err) {
-                this.setErrorState()
+                this.setErrorState(err)
             }
         });
     }
 
-    setErrorState() {
-        this._isMounted && this.setState((state: BeersListState) => ({...state, error: true}));
+    setErrorState(err: Error) {
+        const message = 'Oops, something went wrong! Failed to load beers.';
+        this._isMounted && this.setState((state: BeersListState) => ({...state, error: message}));
     }
 
     componentWillUnmount(): void {
@@ -109,7 +103,11 @@ class BeersList extends React.Component<{}, BeersListState> {
     }
 
     render() {
-        const {beers, isLoading} = this.state;
+        const {beers, isLoading, error} = this.state;
+
+        if (error) {
+            return <ErrorMessage message={error}/>
+        }
 
         const gridItems = isLoading ?
             [0, 1, 2, 3, 4, 5].map(idx =>

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Box, Card, CardActionArea, CardActions, CardContent, CardMedia, Typography} from '@material-ui/core';
-import {Beer} from '../api/Beer';
+import {Beer} from '../api/models/Beer';
 import './BeersListItem.scss';
 import CustomLink from './CustomLink';
 import FavouriteToggle from './FavouriteToggle';

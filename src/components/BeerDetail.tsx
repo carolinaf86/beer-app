@@ -10,15 +10,16 @@ import {
     ListItemText,
     Typography
 } from '@material-ui/core';
-import {Beer} from '../api/Beer';
+import {Beer} from '../api/models/Beer';
 import {Link, RouteComponentProps} from 'react-router-dom';
-import {apiBaseUrl} from '../App';
 import './BeerDetail.scss';
 import EmojiFoodBeverageIcon from '@material-ui/icons/EmojiFoodBeverage';
 import BeerDetailPlaceholder from './BeerDetailPlaceholder';
 import ErrorMessage from './ErrorMessage';
 import FavouriteToggle from './FavouriteToggle';
 import InMemoryStore from '../services/InMemoryStore';
+import BeerService from '../api/services/BeerService';
+import {HttpError} from '../api/services/ErrorService';
 
 interface BeerDetailRouterProps {
     id: string
@@ -48,39 +49,28 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
 
         try {
 
-            const response: Response = await fetch(`${apiBaseUrl}/beers/${id}`);
-
-            if (!(response && response.ok)) {
-                const message = response.status === 400 ?
-                    ['The beer you requested does not exist. ', <Link to={'/'}>Find another beer.</Link>] :
-                    undefined;
-                this.setError(message);
-                return;
-            }
-
-            const json = await response.json();
-
-            // Set error state if json is not an array with one item
-            if (!Array.isArray(json) && json.length === 1) {
-                this.setError();
-                return;
-            }
-
-            const beer = new Beer(json[0]);
+            const beer = await BeerService.findById(+id);
             const isFavourite = InMemoryStore.getIsFavourite((+id));
 
             this.setState((state: BeerDetailState) => ({...state, model: beer, isFavourite}));
 
         } catch (err) {
-            this.setError();
+            this.setErrorState(err);
         }
     }
 
-    setError(message?: string | any[]) {
-        // TODO set error message and display
+    setErrorState(err: Error) {
+
+        let message: string | (string | JSX.Element)[] = 'Oops, something went wrong! Failed to load beer.';
+
+        // Display "not found" message on both 400 and 404 status codes as unknown id in params returns 400 status
+        if (err instanceof HttpError && err.statusCode && [400, 404].indexOf(err.statusCode) > -1) {
+            message = ['The beer you requested does not exist. ', <Link to={'/'}>Find another beer.</Link>];
+        }
+
         this.setState((state: BeerDetailState) => ({
             ...state,
-            error: message || 'Oops, something went wrong! Failed to load beer.'
+            error: message
         }));
     }
 

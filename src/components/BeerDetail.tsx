@@ -20,6 +20,7 @@ import FavouriteToggle from './FavouriteToggle';
 import InMemoryStore from '../services/InMemoryStore';
 import BeerService from '../api/services/BeerService';
 import {HttpError} from '../api/services/ErrorService';
+import Breadcrumbs, {Breadcrumb} from './Breadcrumbs';
 
 interface BeerDetailRouterProps {
     id: string
@@ -82,13 +83,28 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
         this.setState((state: BeerDetailState) => ({...state, isFavourite: !isFavourite}));
     }
 
+    generateBreadcrumbs(): Breadcrumb[] {
+        const breadcrumbs = [{path: '/', title: 'Home'}];
+        const {model} = this.state;
+        const {id} = this.props.match.params;
+        const path = `/beers/${id}`;
+        if (model) {
+            breadcrumbs.push({path, title: model.name});
+        } else {
+            breadcrumbs.push({path, title: id});
+        }
+        return breadcrumbs;
+    }
+
     render() {
 
         const {error, model, isFavourite} = this.state;
 
-        if (error) return <ErrorMessage message={error}/>
+        if (error) {
+            return <div><Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/><ErrorMessage message={error}/></div>
+        }
 
-        if (!model) return <BeerDetailPlaceholder/>;
+        if (!model) return <div><Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/><BeerDetailPlaceholder/></div>;
 
         const {
             name,
@@ -105,6 +121,7 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
 
         return (
             <Box m={2}>
+                <Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/>
                 <Card>
                     <CardContent>
                         <Box display="flex" flexDirection={{xs: 'column', md: 'row'}} p={4}>
@@ -114,9 +131,9 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
                             <Box marginLeft={{md: 8, lg: 12}}>
                                 <Box marginBottom={2} display="flex" flexDirection="row"
                                      justifyContent={{xs: 'center', md: 'left'}}>
-                                        <Typography variant={'h3'}>{name}</Typography>
-                                        <FavouriteToggle onClick={this.handleClick.bind(this)}
-                                                         isFavourite={isFavourite}/>
+                                    <Typography variant={'h3'}>{name}</Typography>
+                                    <FavouriteToggle onClick={this.handleClick.bind(this)}
+                                                     isFavourite={isFavourite}/>
                                 </Box>
                                 <Box marginBottom={6} textAlign={{xs: 'center', md: 'left'}}><Typography
                                     variant={'h6'}>{tagline}</Typography></Box>

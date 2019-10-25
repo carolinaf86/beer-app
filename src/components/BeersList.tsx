@@ -8,6 +8,7 @@ import BeerService from '../api/services/BeerService';
 import ErrorMessage from './ErrorMessage';
 import InMemoryStore from '../services/InMemoryStore';
 import {Link} from 'react-router-dom';
+import Breadcrumbs, {Breadcrumb} from './Breadcrumbs';
 
 interface BeersListState {
     error?: string
@@ -137,12 +138,22 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
         });
     }
 
+    generateBreadcrumbs(): Breadcrumb[] {
+        const breadcrumbs = [{path: '/', title: 'Home'}];
+        if (this.props.showFavourites) {
+            breadcrumbs.push({path: '/favourites', title: 'Favourites'})
+        }
+        return breadcrumbs;
+    }
+
     render() {
         const {beers, isLoading, error} = this.state;
         const {showFavourites} = this.props;
 
+        const breadcrumbs = <Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/>;
+
         if (error) {
-            return <ErrorMessage message={error}/>
+            return <div>{breadcrumbs}<ErrorMessage message={error}/></div>
         }
 
         const loadingItems = isLoading ?
@@ -154,6 +165,7 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
 
         return (
             <div>
+                {breadcrumbs}
                 <Box marginBottom={2} marginLeft={2}>
                     <Typography variant={"h3"}>{showFavourites ? 'My Favourite Beers' : 'All Beers'}</Typography>
                 </Box>

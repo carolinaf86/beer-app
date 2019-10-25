@@ -5,19 +5,33 @@ import './BeersListItem.scss';
 import CustomLink from './CustomLink';
 import FavouriteToggle from './FavouriteToggle';
 
-type BeersListItemProps = {
-    model: Beer,
+import InMemoryStore from '../services/InMemoryStore'
+
+type BeersListItemState = {
     isFavourite: boolean
 }
 
-class BeersListItem extends React.Component<BeersListItemProps, {}> {
+type BeersListItemProps = {
+    model: Beer
+}
+
+class BeersListItem extends React.Component<BeersListItemProps, BeersListItemState> {
+
+    constructor(props: BeersListItemProps) {
+        super(props);
+        this.state = {isFavourite: InMemoryStore.getIsFavourite(props.model.id)};
+    }
 
     handleClick() {
-        console.log('Click');
+        const {isFavourite} = this.state;
+        const {model:{id}} = this.props;
+        isFavourite ? InMemoryStore.removeFavourite(id) : InMemoryStore.addFavourite(id);
+        this.setState((state: BeersListItemState) => ({...state, isFavourite: !isFavourite}));
     }
 
     render() {
-        const {model, isFavourite} = this.props;
+        const {model} = this.props;
+        const {isFavourite} = this.state;
 
         return (
             <Box m={2}>
@@ -44,7 +58,7 @@ class BeersListItem extends React.Component<BeersListItemProps, {}> {
                         </Box>
                         <Box order={{xs: 1, md: 2}} display="flex" justifyContent="flex-end">
                             <CardActions>
-                                <FavouriteToggle onClick={this.handleClick} isFavourite={isFavourite}/>
+                                <FavouriteToggle onClick={this.handleClick.bind(this)} isFavourite={isFavourite}/>
                             </CardActions>
                         </Box>
                     </Box>

@@ -17,6 +17,8 @@ import './BeerDetail.scss';
 import EmojiFoodBeverageIcon from '@material-ui/icons/EmojiFoodBeverage';
 import BeerDetailPlaceholder from './BeerDetailPlaceholder';
 import ErrorMessage from './ErrorMessage';
+import FavouriteToggle from './FavouriteToggle';
+import InMemoryStore from '../services/InMemoryStore';
 
 interface BeerDetailRouterProps {
     id: string
@@ -28,6 +30,7 @@ interface BeerDetailProps extends RouteComponentProps<BeerDetailRouterProps> {
 interface BeerDetailState {
     model?: Beer
     error?: string | any[]
+    isFavourite: boolean
 }
 
 class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
@@ -35,7 +38,8 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
     constructor(props: any) {
         super(props);
         this.state = {
-            model: undefined
+            model: undefined,
+            isFavourite: false
         };
     }
 
@@ -63,8 +67,9 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
             }
 
             const beer = new Beer(json[0]);
+            const isFavourite = InMemoryStore.getIsFavourite((+id));
 
-            this.setState((state: BeerDetailState) => ({...state, model: beer}));
+            this.setState((state: BeerDetailState) => ({...state, model: beer, isFavourite}));
 
         } catch (err) {
             this.setError();
@@ -79,9 +84,17 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
         }));
     }
 
+    handleClick() {
+        const {isFavourite, model} = this.state;
+        if (!model) return;
+        const {id} = model;
+        isFavourite ? InMemoryStore.removeFavourite(id) : InMemoryStore.addFavourite(id);
+        this.setState((state: BeerDetailState) => ({...state, isFavourite: !isFavourite}));
+    }
+
     render() {
 
-        const {error, model} = this.state;
+        const {error, model, isFavourite} = this.state;
 
         if (error) return <ErrorMessage message={error}/>
 
@@ -109,8 +122,12 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
                                 <CardMedia image={imageUrl} title={name} className="beer-detail-media"/>
                             </Box>
                             <Box marginLeft={{md: 8, lg: 12}}>
-                                <Box marginBottom={2} textAlign={{xs: 'center', md: 'left'}}><Typography
-                                    variant={'h3'}>{name}</Typography></Box>
+                                <Box marginBottom={2} display="flex" flexDirection="row"
+                                     justifyContent={{xs: 'center', md: 'left'}}>
+                                        <Typography variant={'h3'}>{name}</Typography>
+                                        <FavouriteToggle onClick={this.handleClick.bind(this)}
+                                                         isFavourite={isFavourite}/>
+                                </Box>
                                 <Box marginBottom={6} textAlign={{xs: 'center', md: 'left'}}><Typography
                                     variant={'h6'}>{tagline}</Typography></Box>
                                 <Box marginBottom={4}><Typography

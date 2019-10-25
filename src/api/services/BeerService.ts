@@ -16,8 +16,7 @@ export class BeerService implements APIService<Beer> {
             let url = `${apiBaseUrl}/beers/?page=${page}&per_page=${pageSize}`;
 
             if (ids && ids.length) {
-                const joined = ids.join('|');
-                url += joined;
+                url += `&ids=${ids.join('|')}`;
             }
 
             const response: Response = await fetch(url);

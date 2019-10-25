@@ -1,7 +1,7 @@
 import React from 'react';
 import NavBar from './components/NavBar';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
-import {Box, Container, createMuiTheme, Typography} from '@material-ui/core';
+import {Box, Container, createMuiTheme} from '@material-ui/core';
 import {blue, red} from '@material-ui/core/colors';
 import {ThemeProvider} from '@material-ui/core/styles';
 import BeersList from './components/BeersList';
@@ -29,10 +29,8 @@ const App: React.FC = () => {
                                 <BeersList/>
                             </Route>
                             <Route path={'/beers/:id'} component={BeerDetail} />
-/                            <Route path={'/favourites'}>
-                                <Typography variant={'h2'}>
-                                    My favourite beers
-                                </Typography>
+                            <Route path={'/favourites'}>
+                                <BeersList showFavourites={true}/>
                             </Route>
                         </Switch>
                     </Container>

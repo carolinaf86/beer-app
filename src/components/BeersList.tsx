@@ -167,7 +167,7 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
             <div>
                 {breadcrumbs}
                 <Box marginBottom={2} marginLeft={2}>
-                    <Typography variant={"h3"}>{showFavourites ? 'My Favourite Beers' : 'All Beers'}</Typography>
+                    <Typography variant={'h1'}>{showFavourites ? 'My Favourite Beers' : 'All Beers'}</Typography>
                 </Box>
                 {showFavourites && !InMemoryStore.getFavourites().length ?
                     <Box marginLeft={2} marginTop={4}><Link to={'/'}>Add some favourite beers</Link></Box> :

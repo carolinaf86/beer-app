@@ -131,12 +131,12 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
                             <Box marginLeft={{md: 8, lg: 12}}>
                                 <Box marginBottom={2} display="flex" flexDirection="row"
                                      justifyContent={{xs: 'center', md: 'left'}}>
-                                    <Typography variant={'h3'}>{name}</Typography>
+                                    <Typography variant={'h1'}>{name}</Typography>
                                     <FavouriteToggle onClick={this.handleClick.bind(this)}
                                                      isFavourite={isFavourite}/>
                                 </Box>
                                 <Box marginBottom={6} textAlign={{xs: 'center', md: 'left'}}><Typography
-                                    variant={'h6'}>{tagline}</Typography></Box>
+                                    variant={'h5'}>{tagline}</Typography></Box>
                                 <Box marginBottom={4}><Typography
                                     variant={'subtitle1'}>{description}</Typography></Box>
                                 <Box marginBottom={4}>

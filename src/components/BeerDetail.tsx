@@ -11,11 +11,12 @@ import {
     Typography
 } from '@material-ui/core';
 import {Beer} from '../api/Beer';
-import {RouteComponentProps} from 'react-router-dom';
+import {Link, RouteComponentProps} from 'react-router-dom';
 import {apiBaseUrl} from '../App';
 import './BeerDetail.scss';
 import EmojiFoodBeverageIcon from '@material-ui/icons/EmojiFoodBeverage';
 import BeerDetailPlaceholder from './BeerDetailPlaceholder';
+import ErrorMessage from './ErrorMessage';
 
 interface BeerDetailRouterProps {
     id: string
@@ -26,7 +27,7 @@ interface BeerDetailProps extends RouteComponentProps<BeerDetailRouterProps> {
 
 interface BeerDetailState {
     model?: Beer
-    error?: boolean
+    error?: string | any[]
 }
 
 class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
@@ -46,7 +47,10 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
             const response: Response = await fetch(`${apiBaseUrl}/beers/${id}`);
 
             if (!(response && response.ok)) {
-                this.setError();
+                const message = response.status === 400 ?
+                    ['The beer you requested does not exist. ', <Link to={'/'}>Find another beer.</Link>] :
+                    undefined;
+                this.setError(message);
                 return;
             }
 
@@ -67,29 +71,35 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
         }
     }
 
-    setError(message?: string) {
+    setError(message?: string | any[]) {
         // TODO set error message and display
-        this.setState((state: BeerDetailState) => ({...state, error: true}));
+        this.setState((state: BeerDetailState) => ({
+            ...state,
+            error: message || 'Oops, something went wrong! Failed to load beer.'
+        }));
     }
 
     render() {
 
-        if (!this.state.model) return  <BeerDetailPlaceholder/>;
+        const {error, model} = this.state;
+
+        if (error) return <ErrorMessage message={error}/>
+
+        if (!model) return <BeerDetailPlaceholder/>;
 
         const {
-            model: {
-                name,
-                imageUrl,
-                tagline,
-                firstBrewed,
-                abv,
-                ibu,
-                description,
-                volume,
-                foodPairing,
-                brewersTips
-            }
-        } = this.state;
+            name,
+            imageUrl,
+            tagline,
+            firstBrewed,
+            abv,
+            ibu,
+            description,
+            volume,
+            foodPairing,
+            brewersTips
+        } = model;
+
         return (
             <Box m={2}>
                 <Card>
@@ -99,8 +109,10 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
                                 <CardMedia image={imageUrl} title={name} className="beer-detail-media"/>
                             </Box>
                             <Box marginLeft={{md: 8, lg: 12}}>
-                                <Box marginBottom={2} textAlign={{xs: 'center', md: 'left'}}><Typography variant={'h3'}>{name}</Typography></Box>
-                                <Box marginBottom={6} textAlign={{xs: 'center', md: 'left'}}><Typography variant={'h6'}>{tagline}</Typography></Box>
+                                <Box marginBottom={2} textAlign={{xs: 'center', md: 'left'}}><Typography
+                                    variant={'h3'}>{name}</Typography></Box>
+                                <Box marginBottom={6} textAlign={{xs: 'center', md: 'left'}}><Typography
+                                    variant={'h6'}>{tagline}</Typography></Box>
                                 <Box marginBottom={4}><Typography
                                     variant={'subtitle1'}>{description}</Typography></Box>
                                 <Box marginBottom={4}>

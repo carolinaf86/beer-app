@@ -5,12 +5,17 @@ import {BaseApiService} from './BaseApiService';
 
 export class BeerService implements BaseApiService<Beer> {
 
-    async find(page: number = 1, pageSize: number = 20, ids?: number[]): Promise<Beer[]> {
+    async find(page: number = 1, pageSize: number = 20, ids?: number[], query?: string): Promise<Beer[]> {
 
         let url = `${apiBaseUrl}/beers/?page=${page}&per_page=${pageSize}`;
 
         if (ids && ids.length) {
             url += `&ids=${ids.join('|')}`;
+        }
+
+        if (query && query.length) {
+            query = query.split(' ').join('_');
+            url += `&beer_name=${query}`;
         }
 
         const response: Response = await fetch(url);

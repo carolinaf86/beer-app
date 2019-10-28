@@ -1,5 +1,5 @@
 import React from 'react';
-import {Box, Grid, Typography} from '@material-ui/core';
+import {Box, Grid, InputAdornment, TextField, Typography} from '@material-ui/core';
 import {Beer} from '../api/models/Beer';
 import BeersListItem from './BeersListItem';
 import debounce from 'lodash.debounce';
@@ -9,6 +9,7 @@ import ErrorMessage from './ErrorMessage';
 import InMemoryStore from '../services/InMemoryStore';
 import {Link} from 'react-router-dom';
 import Breadcrumbs, {Breadcrumb} from './Breadcrumbs';
+import {SearchRounded} from '@material-ui/icons';
 
 interface BeersListState {
     error?: string
@@ -17,6 +18,7 @@ interface BeersListState {
     page: number
     pageSize: number
     beers: Beer[]
+    query: string
 }
 
 interface BeersListProps {
@@ -39,8 +41,11 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
             isLoading: false,
             page: 1,
             pageSize: 20,
-            beers: []
+            beers: [],
+            query: ''
         };
+
+        this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
 
         // Bind to on scroll event for infinite scroll
         window.onscroll = debounce((this.onScroll.bind(this)), 100);
@@ -75,8 +80,8 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
     }
 
     componentDidUpdate(prevProps: Readonly<BeersListProps>, prevState: Readonly<BeersListState>, snapshot?: any): void {
-        // Reset state and reload beers when "showFavourites" prop changes
-        if (prevProps.showFavourites !== this.props.showFavourites) {
+        // Reset state and reload beers when "showFavourites" prop or "query" state changes
+        if (prevProps.showFavourites !== this.props.showFavourites || prevState.query !== this.state.query) {
             this.setState((state: BeersListState) => ({...state, beers: [], page: 1}), () => this.loadBeers());
         }
     }
@@ -85,7 +90,7 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
 
         this._isMounted && this.setState({...this.state, isLoading: true}, async () => {
 
-            const {page, pageSize, beers} = this.state;
+            const {page, pageSize, beers, query} = this.state;
             const {showFavourites} = this.props;
 
             // If "showFavourites" is set, only load beers in favourites state array
@@ -98,7 +103,7 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
 
             try {
 
-                const nextBeers = await BeerService.find(page, pageSize, favouriteIds);
+                const nextBeers = await BeerService.find(page, pageSize, favouriteIds, query);
 
                 // If the number of items requested was returned, we assume there are more
                 const hasMore = nextBeers.length === pageSize;
@@ -131,10 +136,10 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
         if (!this.props.showFavourites) return;
 
         this.setState((state: BeersListState) => {
-           const idx = state.beers.findIndex(beer => beer.id === id);
-           const beers = [...state.beers];
-           beers.splice(idx, 1);
-           return {...state, beers};
+            const idx = state.beers.findIndex(beer => beer.id === id);
+            const beers = [...state.beers];
+            beers.splice(idx, 1);
+            return {...state, beers};
         });
     }
 
@@ -144,6 +149,10 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
             breadcrumbs.push({path: '/favourites', title: 'Favourites'})
         }
         return breadcrumbs;
+    }
+
+    handleSearchInputChange(event: any) {
+        this.setState({query: event.target.value});
     }
 
     render() {
@@ -171,14 +180,31 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
                 </Box>
                 {showFavourites && !InMemoryStore.getFavourites().length ?
                     <Box marginLeft={2} marginTop={4}><Link to={'/'}>Add some favourite beers</Link></Box> :
-                    <Grid container spacing={2}>
-                        {beers.map((beer: Beer) =>
-                            <Grid key={beer.id} item xs={12} sm={6} md={4}>
-                                <BeersListItem model={beer} onFavouriteToggled={showFavourites ? () => this.removeBeer(beer.id) : undefined}/>
-                            </Grid>
-                        )}
-                        {loadingItems}
-                    </Grid>
+                    <div>
+                        <form noValidate autoComplete="off">
+                            <TextField
+                                id="name-search"
+                                style={{margin: 8}}
+                                placeholder="Search for a beer by name..."
+                                fullWidth
+                                margin="normal"
+                                value={this.state.query}
+                                onChange={this.handleSearchInputChange}
+                                InputProps={{
+                                    startAdornment: <InputAdornment position="start"><SearchRounded/></InputAdornment>,
+                                }}
+                            />
+                        </form>
+                        <Grid container spacing={2}>
+                            {beers.map((beer: Beer) =>
+                                <Grid key={beer.id} item xs={12} sm={6} md={4}>
+                                    <BeersListItem model={beer}
+                                                   onFavouriteToggled={showFavourites ? () => this.removeBeer(beer.id) : undefined}/>
+                                </Grid>
+                            )}
+                            {loadingItems}
+                        </Grid>
+                    </div>
                 }
             </div>
         );

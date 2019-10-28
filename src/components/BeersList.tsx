@@ -71,7 +71,7 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
         if (window.innerHeight + document.documentElement.scrollTop > document.documentElement.offsetHeight - 100) {
             // Increment page number
             this._isMounted && this.setState(
-                (state: BeersListState) => ({...state, page: state.page + 1}),
+                (state: BeersListState) => ({...state, page: state.page + 1, isLoading: true}),
                 () => loadBeers.bind(this)()
             );
         }

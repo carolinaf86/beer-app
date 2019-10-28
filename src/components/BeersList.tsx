@@ -181,20 +181,20 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
             undefined;
 
         const searchForm = showFavourites ? undefined :
-            <form noValidate autoComplete="off">
-                <TextField
-                    id="name-search"
-                    style={{margin: 8}}
-                    placeholder="Search for a beer by name..."
-                    fullWidth
-                    margin="normal"
-                    value={this.state.query}
-                    onChange={this.handleSearchInputChange}
-                    InputProps={{
-                        startAdornment: <InputAdornment position="start"><SearchRounded/></InputAdornment>,
-                    }}
-                />
-            </form>
+            <Box marginBottom={4}>
+                <form noValidate autoComplete="off">
+                    <TextField
+                        id="name-search"
+                        placeholder="Search for a beer by name..."
+                        fullWidth
+                        value={this.state.query}
+                        onChange={this.handleSearchInputChange}
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start"><SearchRounded/></InputAdornment>,
+                        }}
+                    />
+                </form>
+            </Box>;
 
         const noItemsFound = !(beers.length || isLoading) ?
             <Typography variant={'subtitle1'}>No matching beers were found.</Typography> : undefined;

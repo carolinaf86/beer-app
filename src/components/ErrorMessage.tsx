@@ -2,7 +2,7 @@ import {Box, Card, CardContent, Typography} from '@material-ui/core';
 import React from 'react';
 import WarningRounded from '@material-ui/icons/WarningRounded';
 
-interface ErrorMessageProps {
+export interface ErrorMessageProps {
     message?: string | any[]
 }
 

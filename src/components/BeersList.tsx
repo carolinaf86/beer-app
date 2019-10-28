@@ -38,7 +38,7 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
         this.state = {
             error: undefined,
             hasMore: true,
-            isLoading: false,
+            isLoading: true,
             page: 1,
             pageSize: 20,
             beers: [],
@@ -46,6 +46,9 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
         };
 
         this.handleSearchInputChange = this.handleSearchInputChange.bind(this);
+
+        // Add debounce to loadBeers to avoid calling api too frequently when search input is changed
+        this.loadBeers = debounce(this.loadBeers.bind(this), 500);
 
         // Bind to on scroll event for infinite scroll
         window.onscroll = debounce((this.onScroll.bind(this)), 100);
@@ -152,7 +155,7 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
     }
 
     handleSearchInputChange(event: any) {
-        this.setState({query: event.target.value});
+        this.setState({query: event.target.value, isLoading: true});
     }
 
     render() {
@@ -172,6 +175,25 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
                 </Grid>) :
             undefined;
 
+        const searchForm = showFavourites ? undefined :
+            <form noValidate autoComplete="off">
+            <TextField
+                id="name-search"
+                style={{margin: 8}}
+                placeholder="Search for a beer by name..."
+                fullWidth
+                margin="normal"
+                value={this.state.query}
+                onChange={this.handleSearchInputChange}
+                InputProps={{
+                    startAdornment: <InputAdornment position="start"><SearchRounded/></InputAdornment>,
+                }}
+            />
+        </form>
+
+        const noItemsFound = !(beers.length || isLoading) ?
+            <Typography variant={'subtitle1'}>No matching beers were found.</Typography> : undefined;
+
         return (
             <div>
                 {breadcrumbs}
@@ -181,20 +203,8 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
                 {showFavourites && !InMemoryStore.getFavourites().length ?
                     <Box marginLeft={2} marginTop={4}><Link to={'/'}>Add some favourite beers</Link></Box> :
                     <div>
-                        <form noValidate autoComplete="off">
-                            <TextField
-                                id="name-search"
-                                style={{margin: 8}}
-                                placeholder="Search for a beer by name..."
-                                fullWidth
-                                margin="normal"
-                                value={this.state.query}
-                                onChange={this.handleSearchInputChange}
-                                InputProps={{
-                                    startAdornment: <InputAdornment position="start"><SearchRounded/></InputAdornment>,
-                                }}
-                            />
-                        </form>
+                        {searchForm}
+                        {noItemsFound}
                         <Grid container spacing={2}>
                             {beers.map((beer: Beer) =>
                                 <Grid key={beer.id} item xs={12} sm={6} md={4}>

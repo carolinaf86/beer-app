@@ -85,7 +85,12 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
     componentDidUpdate(prevProps: Readonly<BeersListProps>, prevState: Readonly<BeersListState>, snapshot?: any): void {
         // Reset state and reload beers when "showFavourites" prop or "query" state changes
         if (prevProps.showFavourites !== this.props.showFavourites || prevState.query !== this.state.query) {
-            this.setState((state: BeersListState) => ({...state, beers: [], page: 1}), () => this.loadBeers());
+            this.setState((state: BeersListState) => ({
+                ...state,
+                beers: [],
+                page: 1,
+                isLoading: true
+            }), () => this.loadBeers());
         }
     }
 
@@ -177,19 +182,19 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
 
         const searchForm = showFavourites ? undefined :
             <form noValidate autoComplete="off">
-            <TextField
-                id="name-search"
-                style={{margin: 8}}
-                placeholder="Search for a beer by name..."
-                fullWidth
-                margin="normal"
-                value={this.state.query}
-                onChange={this.handleSearchInputChange}
-                InputProps={{
-                    startAdornment: <InputAdornment position="start"><SearchRounded/></InputAdornment>,
-                }}
-            />
-        </form>
+                <TextField
+                    id="name-search"
+                    style={{margin: 8}}
+                    placeholder="Search for a beer by name..."
+                    fullWidth
+                    margin="normal"
+                    value={this.state.query}
+                    onChange={this.handleSearchInputChange}
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start"><SearchRounded/></InputAdornment>,
+                    }}
+                />
+            </form>
 
         const noItemsFound = !(beers.length || isLoading) ?
             <Typography variant={'subtitle1'}>No matching beers were found.</Typography> : undefined;

@@ -67,6 +67,11 @@ const BeersListItem = withStyles(styles)(class extends React.Component<BeersList
         const {model, classes} = this.props;
         const {isFavourite} = this.state;
 
+        const cardMedia = model.imageUrl ?
+            <CardMedia image={model.imageUrl} title={model.name}
+                       className={classes.cardMedia}/> :
+            <Box className={classes.cardMedia}/>;
+
         return (
             <Card className={classes.root}>
                 <Box display="flex" flexDirection={{xs: 'column', md: 'row'}}>
@@ -78,8 +83,7 @@ const BeersListItem = withStyles(styles)(class extends React.Component<BeersList
                                          flexDirection={{xs: 'column', md: 'row'}}
                                          alignItems="center"
                                     >
-                                        <CardMedia image={model.imageUrl} title={model.name}
-                                                   className={classes.cardMedia}/>
+                                        {cardMedia}
                                         <Box textAlign={{xs: 'center', md: 'left'}} marginTop={{xs: 3, md: 0}}>
                                             <Typography variant={'h5'}>{model.name}</Typography>
                                             <Typography variant={'subtitle1'}>{model.tagline}</Typography>

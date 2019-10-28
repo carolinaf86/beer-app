@@ -21,7 +21,7 @@ type BeersListItemState = {
     isFavourite: boolean
 }
 
-const styles = (theme: Theme) => createStyles({
+export const beersListItemStyles = (theme: Theme) => createStyles({
     root: {
         marginBottom: theme.spacing(2)
     },
@@ -40,12 +40,12 @@ const styles = (theme: Theme) => createStyles({
     }
 });
 
-interface BeersListItemProps extends WithStyles<typeof styles> {
+interface BeersListItemProps extends WithStyles<typeof beersListItemStyles> {
     model: Beer
     onFavouriteToggled?: () => any
 }
 
-const BeersListItem = withStyles(styles)(class extends React.Component<BeersListItemProps, BeersListItemState> {
+const BeersListItem = withStyles(beersListItemStyles)(class extends React.Component<BeersListItemProps, BeersListItemState> {
 
     constructor(props: BeersListItemProps) {
         super(props);

@@ -188,7 +188,7 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
         // Build search form if not in favourites view
 
         const searchForm = showFavourites ? undefined :
-            <Box marginBottom={4}>
+            <Box marginBottom={6}>
                 <form noValidate autoComplete="off">
                     <TextField
                         id="name-search"
@@ -210,11 +210,11 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
         return (
             <div>
                 {breadcrumbs}
-                <Box marginBottom={2} marginLeft={2}>
+                <Box marginBottom={4} marginLeft={2}>
                     <Typography variant={'h1'}>{showFavourites ? 'My Favourite Beers' : 'All Beers'}</Typography>
                 </Box>
                 {showFavourites && !InMemoryStore.getFavourites().length ?
-                    <Box marginLeft={2} marginTop={4}><Link to={'/'}>Add some favourite beers</Link></Box> :
+                    <Box marginLeft={2}><Link to={'/'}>Add some favourite beers</Link></Box> :
                     <div>
                         {searchForm}
                         {noItemsFound}

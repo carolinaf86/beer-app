@@ -7,7 +7,7 @@ interface FavouriteToggleProps {
     isFavourite: boolean
 }
 
-function FavouriteToggle(props: FavouriteToggleProps) {
+const FavouriteToggle: React.FC<FavouriteToggleProps> = (props: FavouriteToggleProps) => {
 
     const { isFavourite, onClick } = props;
 
@@ -18,5 +18,6 @@ function FavouriteToggle(props: FavouriteToggleProps) {
             {icon}
         </IconButton>
     )
-}
+};
+
 export default FavouriteToggle;

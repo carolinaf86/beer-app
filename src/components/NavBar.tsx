@@ -3,7 +3,7 @@ import {AppBar, Box, makeStyles, Toolbar, Tooltip, Typography, useTheme} from '@
 import {Favorite, HomeRounded} from '@material-ui/icons';
 import {NavLink} from 'react-router-dom';
 
-function NavBar() {
+const NavBar: React.FC = () => {
 
     const theme = useTheme();
     const useStyles = makeStyles({

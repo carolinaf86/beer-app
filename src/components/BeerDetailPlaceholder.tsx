@@ -13,7 +13,7 @@ import './Placeholder.scss';
 import EmojiFoodBeverageIcon from '@material-ui/icons/EmojiFoodBeverage';
 import {beerDetailStyles} from './BeerDetail';
 
-function BeerDetailPlaceholder() {
+const BeerDetailPlaceholder: React.FC = () => {
 
     const useStyles = makeStyles(beerDetailStyles);
     const classes = useStyles();
@@ -54,6 +54,6 @@ function BeerDetailPlaceholder() {
                 </CardContent>
             </Card>
     );
-}
+};
 
 export default BeerDetailPlaceholder;

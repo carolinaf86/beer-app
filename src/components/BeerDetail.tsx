@@ -61,10 +61,11 @@ const BeerDetail = withStyles(beerDetailStyles)(class extends React.Component<Be
     }
 
     async componentDidMount(): Promise<void> {
+        // Retrieve "id" from route params
         const {id} = this.props.match.params;
 
+        // Fetch beer by its id and whether it is a favourite from InMemoryStore, and update state or set error
         try {
-
             const beer = await BeerService.findById(+id);
             const isFavourite = InMemoryStore.getIsFavourite((+id));
 
@@ -93,8 +94,12 @@ const BeerDetail = withStyles(beerDetailStyles)(class extends React.Component<Be
     handleClick() {
         const {isFavourite, model} = this.state;
         if (!model) return;
+
+        // Add or remove this beer's id from the InMemoryStore
         const {id} = model;
         isFavourite ? InMemoryStore.removeFavourite(id) : InMemoryStore.addFavourite(id);
+
+        // Update component's state to reflect changes
         this.setState((state: BeerDetailState) => ({...state, isFavourite: !isFavourite}));
     }
 
@@ -103,11 +108,14 @@ const BeerDetail = withStyles(beerDetailStyles)(class extends React.Component<Be
         const {model} = this.state;
         const {id} = this.props.match.params;
         const path = `/beers/${id}`;
+
+        // Set current breadcrumb as either this beer's id or it's name if the model has loaded
         if (model) {
             breadcrumbs.push({path, title: model.name});
         } else {
             breadcrumbs.push({path, title: id});
         }
+
         return breadcrumbs;
     }
 
@@ -116,11 +124,13 @@ const BeerDetail = withStyles(beerDetailStyles)(class extends React.Component<Be
         const {error, model, isFavourite} = this.state;
         const {classes} = this.props;
 
-        if (error) {
-            return <div><Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/><ErrorMessage message={error}/></div>
-        }
+        const breadcrumbs = <Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/>;
 
-        if (!model) return <div><Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/><BeerDetailPlaceholder/></div>;
+        // Display error message if "error" is set
+        if (error) return <div>{breadcrumbs}<ErrorMessage message={error}/></div>
+
+        // Display placeholder if "model" has not been set
+        if (!model) return <div>{breadcrumbs}<BeerDetailPlaceholder/></div>;
 
         const {
             name,
@@ -137,7 +147,7 @@ const BeerDetail = withStyles(beerDetailStyles)(class extends React.Component<Be
 
         return (
             <div className={classes.root}>
-                <Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/>
+                {breadcrumbs}
                 <Card>
                     <CardContent>
                         <Box display="flex" flexDirection={{xs: 'column', md: 'row'}} p={4}>

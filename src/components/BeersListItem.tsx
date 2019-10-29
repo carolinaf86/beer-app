@@ -59,9 +59,14 @@ const BeersListItem = withStyles(beersListItemStyles)(class extends React.Compon
     handleClick() {
         const {isFavourite} = this.state;
         const {model: {id}, onFavouriteToggled} = this.props;
+
+        // Add or remove id from InMemoryStore
         isFavourite ? InMemoryStore.removeFavourite(id) : InMemoryStore.addFavourite(id);
+
+        // Update state
         this.setState((state: BeersListItemState) => ({...state, isFavourite: !isFavourite}));
 
+        // Call "onFavouriteToggled" prop method if set
         if (onFavouriteToggled) {
             onFavouriteToggled();
         }

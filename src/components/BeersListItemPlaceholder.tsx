@@ -3,7 +3,7 @@ import {Box, Card, CardContent, makeStyles} from '@material-ui/core';
 import './Placeholder.scss';
 import {beersListItemStyles} from './BeersListItem';
 
-function BeersListItemPlaceholder() {
+const BeersListItemPlaceholder: React.FC = () => {
 
     const useStyles = makeStyles(beersListItemStyles);
 

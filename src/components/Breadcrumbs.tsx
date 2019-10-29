@@ -12,7 +12,7 @@ interface BreadcrumbsProps {
     breadcrumbs: Breadcrumb[]
 }
 
-function Breadcrumbs(props: BreadcrumbsProps) {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = (props: BreadcrumbsProps) => {
 
     const theme = useTheme();
     const useStyles = makeStyles({
@@ -50,6 +50,6 @@ function Breadcrumbs(props: BreadcrumbsProps) {
         </div>
     )
 
-}
+};
 
 export default Breadcrumbs;

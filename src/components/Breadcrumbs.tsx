@@ -41,7 +41,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = (props: BreadcrumbsProps) => {
                 {breadcrumbs.map((breadcrumb, idx) => {
                     const linkClasses = idx === breadcrumbs.length - 1 ? classes.currentLink : classes.link;
                     return (
-                        <CustomLink key={idx} to={breadcrumb.path}
+                        <CustomLink key={idx} to={breadcrumb.path} aria-label={breadcrumb.title}
                                     className={linkClasses}>{breadcrumb.title}</CustomLink>
                     )
                 })

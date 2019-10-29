@@ -14,7 +14,7 @@ const FavouriteToggle: React.FC<FavouriteToggleProps> = (props: FavouriteToggleP
     const icon = isFavourite ? <Favorite/> : <FavoriteBorder/>;
 
     return (
-        <IconButton color="secondary" onClick={() => onClick()}>
+        <IconButton aria-label="Favourite" aria-checked={isFavourite} color="secondary" onClick={() => onClick()}>
             {icon}
         </IconButton>
     )

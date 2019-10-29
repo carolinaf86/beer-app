@@ -37,6 +37,10 @@ export const beersListItemStyles = (theme: Theme) => createStyles({
         '@media (min-width: 960px)': {
             marginRight: theme.spacing(2)
         }
+    },
+    favouritePlaceholder: {
+        height: '24px',
+        width: '100%'
     }
 });
 

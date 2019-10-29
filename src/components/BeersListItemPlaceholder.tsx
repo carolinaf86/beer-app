@@ -5,27 +5,29 @@ import {beersListItemStyles} from './BeersListItem';
 
 function BeersListItemPlaceholder() {
 
-        const useStyles = makeStyles(beersListItemStyles);
+    const useStyles = makeStyles(beersListItemStyles);
 
-        const classes = useStyles();
+    const classes = useStyles();
 
-        return (
-                <Card className={classes.root}>
-                    <CardContent>
-                        <Box display="flex"
-                             flexDirection={{xs: 'column', md: 'row'}}
-                             alignItems="center"
-                             className={classes.cardActionArea}
-                        >
-                            <Box marginRight={2} className={`${classes.cardMedia} placeholder`}/>
-                            <Box textAlign={{xs: 'center', md: 'left'}} marginTop={{xs: 3, md: 0}}>
-                                <Box m={2} className="placeholder h5"/>
-                                <Box m={2} className="placeholder subtitle2"/>
-                            </Box>
+    return (
+        <Card className={classes.root}>
+            <Box className={classes.cardActionArea}>
+                <CardContent>
+                    <Box display="flex"
+                         flexDirection={{xs: 'column', md: 'row'}}
+                         alignItems="center"
+                    >
+                        <Box display={{md: 'none'}} className={classes.favouritePlaceholder} />
+                        <Box marginRight={2} className={`${classes.cardMedia} placeholder`}/>
+                        <Box marginTop={{xs: 3, md: 0}}>
+                            <Box m={2} marginX={{xs: 'auto'}} marginLeft={{md: 2}} className="placeholder h5"/>
+                            <Box m={2} className="placeholder subtitle2"/>
                         </Box>
-                    </CardContent>
-                </Card>
-        )
+                    </Box>
+                </CardContent>
+            </Box>
+        </Card>
+    )
 };
 
 export default BeersListItemPlaceholder;

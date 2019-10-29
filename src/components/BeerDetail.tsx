@@ -142,7 +142,7 @@ const BeerDetail = withStyles(beerDetailStyles)(class extends React.Component<Be
                     <CardContent>
                         <Box display="flex" flexDirection={{xs: 'column', md: 'row'}} p={4}>
                             <Box alignSelf="center" marginBottom={{xs: 6, md: 0}}>
-                                <CardMedia image={imageUrl} title={name} className="beer-detail-media"/>
+                                <CardMedia image={imageUrl} title={name} className={classes.cardMedia}/>
                             </Box>
                             <Box marginLeft={{md: 8, lg: 12}}>
                                 <Box marginBottom={2} display="flex" flexDirection="row"

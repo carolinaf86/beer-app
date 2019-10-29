@@ -35,8 +35,11 @@ const App: React.FC = () => {
     });
     const classes = useStyles();
 
+    // Set basename on Router for github pages to handle route-prefixing
+    const basename = process.env.PUBLIC_URL || '/';
+
     return (
-        <Router>
+        <Router basename={basename}>
             <ThemeProvider theme={theme}>
                 <NavBar/>
                     <Container className={classes.container}>

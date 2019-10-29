@@ -21,7 +21,7 @@ type BeersListItemState = {
     isFavourite: boolean
 }
 
-const styles = (theme: Theme) => createStyles({
+export const beersListItemStyles = (theme: Theme) => createStyles({
     root: {
         marginBottom: theme.spacing(2)
     },
@@ -37,15 +37,19 @@ const styles = (theme: Theme) => createStyles({
         '@media (min-width: 960px)': {
             marginRight: theme.spacing(2)
         }
+    },
+    favouritePlaceholder: {
+        height: '24px',
+        width: '100%'
     }
 });
 
-interface BeersListItemProps extends WithStyles<typeof styles> {
+interface BeersListItemProps extends WithStyles<typeof beersListItemStyles> {
     model: Beer
     onFavouriteToggled?: () => any
 }
 
-const BeersListItem = withStyles(styles)(class extends React.Component<BeersListItemProps, BeersListItemState> {
+const BeersListItem = withStyles(beersListItemStyles)(class extends React.Component<BeersListItemProps, BeersListItemState> {
 
     constructor(props: BeersListItemProps) {
         super(props);
@@ -55,9 +59,14 @@ const BeersListItem = withStyles(styles)(class extends React.Component<BeersList
     handleClick() {
         const {isFavourite} = this.state;
         const {model: {id}, onFavouriteToggled} = this.props;
+
+        // Add or remove id from InMemoryStore
         isFavourite ? InMemoryStore.removeFavourite(id) : InMemoryStore.addFavourite(id);
+
+        // Update state
         this.setState((state: BeersListItemState) => ({...state, isFavourite: !isFavourite}));
 
+        // Call "onFavouriteToggled" prop method if set
         if (onFavouriteToggled) {
             onFavouriteToggled();
         }
@@ -66,6 +75,11 @@ const BeersListItem = withStyles(styles)(class extends React.Component<BeersList
     render() {
         const {model, classes} = this.props;
         const {isFavourite} = this.state;
+
+        const cardMedia = model.imageUrl ?
+            <CardMedia image={model.imageUrl} title={model.name}
+                       className={classes.cardMedia}/> :
+            <Box className={classes.cardMedia}/>;
 
         return (
             <Card className={classes.root}>
@@ -78,8 +92,7 @@ const BeersListItem = withStyles(styles)(class extends React.Component<BeersList
                                          flexDirection={{xs: 'column', md: 'row'}}
                                          alignItems="center"
                                     >
-                                        <CardMedia image={model.imageUrl} title={model.name}
-                                                   className={classes.cardMedia}/>
+                                        {cardMedia}
                                         <Box textAlign={{xs: 'center', md: 'left'}} marginTop={{xs: 3, md: 0}}>
                                             <Typography variant={'h5'}>{model.name}</Typography>
                                             <Typography variant={'subtitle1'}>{model.tagline}</Typography>

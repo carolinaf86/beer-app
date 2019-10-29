@@ -3,16 +3,15 @@ import {
     Box,
     Card,
     CardContent,
-    CardMedia,
+    CardMedia, createStyles,
     List,
     ListItem,
     ListItemIcon,
-    ListItemText,
-    Typography
+    ListItemText, Theme,
+    Typography, withStyles, WithStyles
 } from '@material-ui/core';
 import {Beer} from '../api/models/Beer';
 import {Link, RouteComponentProps} from 'react-router-dom';
-import './BeerDetail.scss';
 import EmojiFoodBeverageIcon from '@material-ui/icons/EmojiFoodBeverage';
 import BeerDetailPlaceholder from './BeerDetailPlaceholder';
 import ErrorMessage from './ErrorMessage';
@@ -22,11 +21,27 @@ import BeerService from '../api/services/BeerService';
 import {HttpError} from '../api/services/ErrorService';
 import Breadcrumbs, {Breadcrumb} from './Breadcrumbs';
 
+export const beerDetailStyles = (theme: Theme) => createStyles({
+    root: {
+        marginBottom: theme.spacing(2)
+    },
+    cardMedia: {
+        height: '300px',
+        width: '150px',
+        backgroundSize: 'contain'
+    },
+    list: {
+        '& li': {
+            padding: 0
+        }
+    }
+});
+
 interface BeerDetailRouterProps {
     id: string
 }
 
-interface BeerDetailProps extends RouteComponentProps<BeerDetailRouterProps> {
+interface BeerDetailProps extends RouteComponentProps<BeerDetailRouterProps>, WithStyles<typeof beerDetailStyles> {
 }
 
 interface BeerDetailState {
@@ -35,7 +50,7 @@ interface BeerDetailState {
     isFavourite: boolean
 }
 
-class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
+const BeerDetail = withStyles(beerDetailStyles)(class extends React.Component<BeerDetailProps, BeerDetailState> {
 
     constructor(props: any) {
         super(props);
@@ -46,10 +61,11 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
     }
 
     async componentDidMount(): Promise<void> {
+        // Retrieve "id" from route params
         const {id} = this.props.match.params;
 
+        // Fetch beer by its id and whether it is a favourite from InMemoryStore, and update state or set error
         try {
-
             const beer = await BeerService.findById(+id);
             const isFavourite = InMemoryStore.getIsFavourite((+id));
 
@@ -78,8 +94,12 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
     handleClick() {
         const {isFavourite, model} = this.state;
         if (!model) return;
+
+        // Add or remove this beer's id from the InMemoryStore
         const {id} = model;
         isFavourite ? InMemoryStore.removeFavourite(id) : InMemoryStore.addFavourite(id);
+
+        // Update component's state to reflect changes
         this.setState((state: BeerDetailState) => ({...state, isFavourite: !isFavourite}));
     }
 
@@ -88,23 +108,29 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
         const {model} = this.state;
         const {id} = this.props.match.params;
         const path = `/beers/${id}`;
+
+        // Set current breadcrumb as either this beer's id or it's name if the model has loaded
         if (model) {
             breadcrumbs.push({path, title: model.name});
         } else {
             breadcrumbs.push({path, title: id});
         }
+
         return breadcrumbs;
     }
 
     render() {
 
         const {error, model, isFavourite} = this.state;
+        const {classes} = this.props;
 
-        if (error) {
-            return <div><Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/><ErrorMessage message={error}/></div>
-        }
+        const breadcrumbs = <Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/>;
 
-        if (!model) return <div><Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/><BeerDetailPlaceholder/></div>;
+        // Display error message if "error" is set
+        if (error) return <div>{breadcrumbs}<ErrorMessage message={error}/></div>
+
+        // Display placeholder if "model" has not been set
+        if (!model) return <div>{breadcrumbs}<BeerDetailPlaceholder/></div>;
 
         const {
             name,
@@ -120,13 +146,13 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
         } = model;
 
         return (
-            <Box m={2}>
-                <Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/>
+            <div className={classes.root}>
+                {breadcrumbs}
                 <Card>
                     <CardContent>
                         <Box display="flex" flexDirection={{xs: 'column', md: 'row'}} p={4}>
                             <Box alignSelf="center" marginBottom={{xs: 6, md: 0}}>
-                                <CardMedia image={imageUrl} title={name} className="beer-detail-media"/>
+                                <CardMedia image={imageUrl} title={name} className={classes.cardMedia}/>
                             </Box>
                             <Box marginLeft={{md: 8, lg: 12}}>
                                 <Box marginBottom={2} display="flex" flexDirection="row"
@@ -140,7 +166,7 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
                                 <Box marginBottom={4}><Typography
                                     variant={'subtitle1'}>{description}</Typography></Box>
                                 <Box marginBottom={4}>
-                                    <List className="beer-details-list" aria-label={`${name} details list`}>
+                                    <List className={classes.list} aria-label={`${name} details list`}>
                                         <ListItem>
                                             <ListItemText>First brewed: <strong>{firstBrewed}</strong></ListItemText>
                                         </ListItem>
@@ -159,7 +185,7 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
                                     <Box marginBottom={2}>
                                         <Typography variant={'subtitle1'}>Suggested food pairings:</Typography>
                                     </Box>
-                                    <List className="beer-details-list" aria-label={`${name} food pairings list`}>
+                                    <List className={classes.list} aria-label={`${name} food pairings list`}>
                                         {foodPairing.map((item, idx) =>
                                             <ListItem key={idx}>
                                                 <ListItemIcon><EmojiFoodBeverageIcon/></ListItemIcon>
@@ -175,9 +201,9 @@ class BeerDetail extends React.Component<BeerDetailProps, BeerDetailState> {
                         </Box>
                     </CardContent>
                 </Card>
-            </Box>
+            </div>
         )
     }
-};
+});
 
 export default BeerDetail;

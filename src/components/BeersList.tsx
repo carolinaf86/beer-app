@@ -104,11 +104,14 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
             // If "showFavourites" is set, only load beers in favourites state array
             const favouriteIds = showFavourites ? InMemoryStore.getFavourites() : undefined;
 
+            // If "showFavourites" is set but there are no ids in the InMemoryStore, set state with empty beers array
+            // and return before attempting to fetch
             if (showFavourites && !(favouriteIds && favouriteIds.length)) {
                 this.setState((state: BeersListState) => ({...state, isLoading: false, beers: []}));
                 return;
             }
 
+            // Fetch beers and update beers state or set error
             try {
 
                 const nextBeers = await BeerService.find(page, pageSize, favouriteIds, query);
@@ -139,7 +142,8 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
     }
 
     removeBeer(id: number) {
-        // Ensure "unfavourited" beers are removed from beers array on favourites view
+
+        // Remove beer from beers array on favourites view
 
         if (!this.props.showFavourites) return;
 
@@ -169,9 +173,10 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
 
         const breadcrumbs = <Breadcrumbs breadcrumbs={this.generateBreadcrumbs()}/>;
 
-        if (error) {
-            return <div>{breadcrumbs}<ErrorMessage message={error}/></div>
-        }
+        // Display error message if "error" is set
+        if (error) return <div>{breadcrumbs}<ErrorMessage message={error}/></div>;
+
+        // Generate placeholder items if "isLoading" is set
 
         const loadingItems = isLoading ?
             [0, 1, 2, 3, 4, 5].map(idx =>
@@ -180,22 +185,25 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
                 </Grid>) :
             undefined;
 
-        const searchForm = showFavourites ? undefined :
-            <form noValidate autoComplete="off">
-                <TextField
-                    id="name-search"
-                    style={{margin: 8}}
-                    placeholder="Search for a beer by name..."
-                    fullWidth
-                    margin="normal"
-                    value={this.state.query}
-                    onChange={this.handleSearchInputChange}
-                    InputProps={{
-                        startAdornment: <InputAdornment position="start"><SearchRounded/></InputAdornment>,
-                    }}
-                />
-            </form>
+        // Build search form if not in favourites view
 
+        const searchForm = showFavourites ? undefined :
+            <Box marginBottom={4}>
+                <form noValidate autoComplete="off">
+                    <TextField
+                        id="name-search"
+                        placeholder="Search for a beer by name..."
+                        fullWidth
+                        value={this.state.query}
+                        onChange={this.handleSearchInputChange}
+                        InputProps={{
+                            startAdornment: <InputAdornment position="start"><SearchRounded/></InputAdornment>,
+                        }}
+                    />
+                </form>
+            </Box>;
+
+        // Display "no items found" message if after loading there are no items in "beers" array
         const noItemsFound = !(beers.length || isLoading) ?
             <Typography variant={'subtitle1'}>No matching beers were found.</Typography> : undefined;
 

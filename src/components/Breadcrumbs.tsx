@@ -12,7 +12,7 @@ interface BreadcrumbsProps {
     breadcrumbs: Breadcrumb[]
 }
 
-function Breadcrumbs(props: BreadcrumbsProps) {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = (props: BreadcrumbsProps) => {
 
     const theme = useTheme();
     const useStyles = makeStyles({
@@ -41,7 +41,7 @@ function Breadcrumbs(props: BreadcrumbsProps) {
                 {breadcrumbs.map((breadcrumb, idx) => {
                     const linkClasses = idx === breadcrumbs.length - 1 ? classes.currentLink : classes.link;
                     return (
-                        <CustomLink key={idx} to={breadcrumb.path}
+                        <CustomLink key={idx} to={breadcrumb.path} aria-label={breadcrumb.title}
                                     className={linkClasses}>{breadcrumb.title}</CustomLink>
                     )
                 })
@@ -50,6 +50,6 @@ function Breadcrumbs(props: BreadcrumbsProps) {
         </div>
     )
 
-}
+};
 
 export default Breadcrumbs;

@@ -1,7 +1,6 @@
 import {Beer} from '../models/Beer';
-import {apiBaseUrl} from '../../App';
 import ErrorService from './ErrorService';
-import {BaseApiService} from './BaseApiService';
+import {apiBaseUrl, BaseApiService} from './BaseApiService';
 
 export class BeerService implements BaseApiService<Beer> {
 

@@ -7,16 +7,17 @@ interface FavouriteToggleProps {
     isFavourite: boolean
 }
 
-function FavouriteToggle(props: FavouriteToggleProps) {
+const FavouriteToggle: React.FC<FavouriteToggleProps> = (props: FavouriteToggleProps) => {
 
     const { isFavourite, onClick } = props;
 
     const icon = isFavourite ? <Favorite/> : <FavoriteBorder/>;
 
     return (
-        <IconButton color="secondary" onClick={() => onClick()}>
+        <IconButton aria-label="Favourite" aria-checked={isFavourite} color="secondary" onClick={() => onClick()}>
             {icon}
         </IconButton>
     )
-}
+};
+
 export default FavouriteToggle;

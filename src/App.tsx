@@ -1,7 +1,7 @@
 import React from 'react';
 import NavBar from './components/NavBar';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-import {Box, Container, createMuiTheme} from '@material-ui/core';
+import {Container, createMuiTheme, makeStyles} from '@material-ui/core';
 import {blue, red} from '@material-ui/core/colors';
 import {ThemeProvider} from '@material-ui/core/styles';
 import BeersList from './components/BeersList';
@@ -26,29 +26,28 @@ const theme = createMuiTheme({
     }
 });
 
-export const apiBaseUrl = 'https://api.punkapi.com/v2';
-
 const App: React.FC = () => {
+
+    const useStyles = makeStyles({
+        container: {
+            marginTop: theme.spacing(5),
+        },
+    });
+    const classes = useStyles();
+
     return (
         <Router>
             <ThemeProvider theme={theme}>
                 <NavBar/>
-                <Box marginTop={5}>
-                    <Container>
+                    <Container className={classes.container}>
                         <Switch>
-                            <Route path={'/'} exact>
-                                <BeersList/>
-                            </Route>
+                            <Route path={'/'} exact component={BeersList}/>
                             <Route path={'/beers/:id'} component={BeerDetail}/>
-                            <Route path={'/favourites'}>
-                                <BeersList showFavourites={true}/>
-                            </Route>
-                            <Route>
-                                <ErrorMessage message={'Oops! Page not found.'}/>
-                            </Route>
+                            <Route path={'/favourites'}><BeersList showFavourites={true}/></Route>
+                            {/* Default route */}
+                            <Route><ErrorMessage message={'Oops! Page not found.'}/></Route>
                         </Switch>
                     </Container>
-                </Box>
             </ThemeProvider>
         </Router>
     );

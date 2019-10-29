@@ -1,31 +1,33 @@
 import React from 'react';
-import {Box, Card, CardContent} from '@material-ui/core';
-import './BeersListItem.scss';
+import {Box, Card, CardContent, makeStyles} from '@material-ui/core';
 import './Placeholder.scss';
+import {beersListItemStyles} from './BeersListItem';
 
-class BeersListItemPlaceholder extends React.Component {
+const BeersListItemPlaceholder: React.FC = () => {
 
-    render() {
+    const useStyles = makeStyles(beersListItemStyles);
 
-        return (
-            <Box m={2}>
-                <Card>
-                    <CardContent>
-                        <Box display="flex"
-                             flexDirection={{xs: 'column', md: 'row'}}
-                             alignItems="center"
-                        >
-                            <Box marginRight={2} className="placeholder beers-list-item-media"/>
-                            <Box textAlign={{xs: 'center', md: 'left'}} marginTop={{xs: 3, md: 0}}>
-                                <Box m={2} className="placeholder h5"/>
-                                <Box m={2} className="placeholder subtitle2"/>
-                            </Box>
+    const classes = useStyles();
+
+    return (
+        <Card className={classes.root}>
+            <Box className={classes.cardActionArea}>
+                <CardContent>
+                    <Box display="flex"
+                         flexDirection={{xs: 'column', md: 'row'}}
+                         alignItems="center"
+                    >
+                        <Box display={{md: 'none'}} className={classes.favouritePlaceholder} />
+                        <Box marginRight={2} className={`${classes.cardMedia} placeholder`}/>
+                        <Box marginTop={{xs: 3, md: 0}}>
+                            <Box m={2} marginX={{xs: 'auto'}} marginLeft={{md: 2}} className="placeholder h5"/>
+                            <Box m={2} className="placeholder subtitle2"/>
                         </Box>
-                    </CardContent>
-                </Card>
+                    </Box>
+                </CardContent>
             </Box>
-        )
-    }
+        </Card>
+    )
 };
 
 export default BeersListItemPlaceholder;

@@ -189,7 +189,7 @@ class BeersList extends React.Component<BeersListProps, BeersListState> {
 
         const searchForm = showFavourites ? undefined :
             <Box marginBottom={6}>
-                <form noValidate autoComplete="off">
+                <form noValidate autoComplete="off" onSubmit={e => e.preventDefault()}>
                     <TextField
                         id="name-search"
                         placeholder="Search for a beer by name..."

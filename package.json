@@ -13,7 +13,7 @@
     "@types/react-router-dom": "^5.1.0",
     "@types/styled-components": "^4.1.19",
     "lodash.debounce": "^4.0.8",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "react": "^16.11.0",
     "react-app-polyfill": "^1.0.4",
     "react-dom": "^16.11.0",
